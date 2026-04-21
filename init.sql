@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS categories (
 CREATE TABLE IF NOT EXISTS suppliers (
     supplier_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
-    email VARCHAR(64) UNIQUE,
+    email VARCHAR(100) UNIQUE,
     phone VARCHAR(20),
     PRIMARY KEY (supplier_id)
 );
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS suppliers (
 CREATE TABLE IF NOT EXISTS manufacturers (
     manufacturer_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
-    email VARCHAR(64) UNIQUE,
+    email VARCHAR(100) UNIQUE,
     phone VARCHAR(20),
     PRIMARY KEY (manufacturer_id)
 );
@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS products (
     product_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
     description TEXT,
+    attributes JSON,
     category_id INT UNSIGNED NOT NULL,
     supplier_id INT UNSIGNED NOT NULL,
     manufacturer_id INT UNSIGNED NOT NULL,
@@ -45,7 +46,7 @@ CREATE TABLE IF NOT EXISTS products (
 CREATE TABLE IF NOT EXISTS customers (
     customer_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
-    email VARCHAR(64) UNIQUE,
+    email VARCHAR(100) UNIQUE,
     phone VARCHAR(20),
     PRIMARY KEY (customer_id)
 );
@@ -66,12 +67,12 @@ CREATE TABLE IF NOT EXISTS purchases (
     customer_id INT UNSIGNED NOT NULL,
     product_id INT UNSIGNED NOT NULL,
     price_id INT UNSIGNED NOT NULL,
-    quantity INT NOT NULL,
-    purchase_date DATE NOT NULL,
+    quantity SMALLINT UNSIGNED NOT NULL,
+    purchase_date DATETIME NOT NULL,
     PRIMARY KEY (purchase_id),
     CONSTRAINT fk_purchases_customer
         FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
-    CONSTRAINT fk_purchases_product
+        CONSTRAINT fk_purchases_product
         FOREIGN KEY (product_id) REFERENCES products(product_id),
     CONSTRAINT fk_purchases_price
         FOREIGN KEY (price_id) REFERENCES prices(price_id)
@@ -90,9 +91,42 @@ INSERT INTO manufacturers (name, email, phone) VALUES
 ('Lenovo', 'lenovo@example.com', '+79990000003'),
 ('Logitech', 'logitech@example.com', '+79990000004');
 
-INSERT INTO products (name, description, category_id, supplier_id, manufacturer_id) VALUES
-('Lenovo ThinkBook', 'Ноутбук для офиса', 1, 1, 1),
-('Logitech M185', 'Беспроводная мышь', 2, 2, 2);
+INSERT INTO products (name, description, attributes, category_id, supplier_id, manufacturer_id) VALUES
+(
+  'Lenovo ThinkBook',
+  'Ноутбук для офиса',
+  JSON_OBJECT(
+    'cpu', 'Intel Core i5',
+    'ram_gb', 16,
+    'storage_gb', 512,
+    'color', 'gray',
+    'warranty_months', 24
+  ),
+  1, 1, 1
+),
+(
+  'Logitech M185',
+  'Беспроводная мышь',
+  JSON_OBJECT(
+    'dpi', 1600,
+    'wireless', true,
+    'battery', 'AA',
+    'color', 'black'
+  ),
+  2, 2, 2
+),
+(
+  'Dell Monitor 24',
+  'Монитор 24 дюйма',
+  JSON_OBJECT(
+    'diagonal', 24,
+    'resolution', '1920x1080',
+    'panel', 'IPS',
+    'ports', JSON_ARRAY('HDMI', 'DisplayPort'),
+    'color', 'black'
+  ),
+  3, 1, 1
+);
 
 INSERT INTO customers (name, email, phone) VALUES
 ('Иван Петров', 'ivan@example.com', '+79990000005'),
@@ -100,8 +134,10 @@ INSERT INTO customers (name, email, phone) VALUES
 
 INSERT INTO prices (product_id, price, start_date, end_date) VALUES
 (1, 79990.00, '2026-01-01', '2026-12-31'),
-(2, 1990.00, '2026-01-01', '2026-12-31');
+(2, 1990.00, '2026-01-01', '2026-12-31'),
+(3, 15990.00, '2026-01-01', '2026-12-31');
 
 INSERT INTO purchases (customer_id, product_id, price_id, quantity, purchase_date) VALUES
-(1, 1, 1, 1, '2026-04-01'),
-(2, 2, 2, 2, '2026-04-02');
+(1, 1, 1, 1, '2026-04-01 10:15:00'),
+(2, 2, 2, 2, '2026-04-02 14:30:00'),
+(1, 3, 3, 1, '2026-04-03 16:45:00');
