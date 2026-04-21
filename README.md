@@ -1,4 +1,4 @@
-# OTUS MySQL Types
+# OTUS Типы данных в MySQL 
 
 ## Описание
 
